@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+      "skipLibCheck": true,
+      "target": "esnext",
+      "module": "commonjs",
+      "lib": ["es2022", "esnext"],
+      "allowJs": true,
+      "jsx": "react-native",
+      "noEmit": true,
+      "isolatedModules": true,
+      "strict": true,
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "baseUrl": "./",
+      "rootDirs": ["./src"],
+      "paths": {
+          "@assets/*": ["./src/assets/*"],
+          "@components/*": ["./src/components/*"],
+          "@constants/*": ["./src/constants/*"],
+          "@helpers/*": ["./src/helpers/*"],
+          "@interfaces/*": ["./src/interfaces/*"],
+          "@navigation/*": ["./src/navigation/*"],
+          "@screens/*": ["./src/screens/*"],
+          "@redux/*": ["./src/redux/*"],
+          "@test-mocks/*": ["./__mocks__/*"]
+      }
+  },
+  "include": ["./src/**/*", "__tests__", "__mocks__", ".eslintrc.js"],
+  "exclude": ["node_modules", "metro.config.js", ]
+}
