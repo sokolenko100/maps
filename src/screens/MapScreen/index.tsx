@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useCallback, FC} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Alert} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import MapView, {Marker} from 'react-native-maps';
 import {Picker} from '@react-native-picker/picker';
+import Geolocation from '@react-native-community/geolocation';
 import {styles} from './styles';
 import {RootState} from '@redux/stores/store';
 import {getCountriesData} from './redux/actionCreators';
@@ -22,6 +23,10 @@ const europeCoordinate = {
   longitude: -0.1278,
 };
 
+/**
+ * MapScreen screen
+ * Render europe and asia map
+ */
 const MapScreen: FC = () => {
   const dispatch = useDispatch();
   const [selectedRegion, setSelectedRegion] = useState('Europe');
@@ -31,8 +36,25 @@ const MapScreen: FC = () => {
     InitialRegionCoordinate,
   );
 
+  const getCurrentPosition = useCallback(() => {
+      Geolocation.getCurrentPosition(
+        pos => {
+          const {longitude, latitude} = pos.coords;
+          setRegionCoordinates({
+            longitude, 
+            latitude,
+            latitudeDelta: 10,
+            longitudeDelta: 10,
+          });
+        },
+        error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
+        {enableHighAccuracy: true},
+      );
+    },[]);
+
   useEffect(() => {
     dispatch(getCountriesData());
+    getCurrentPosition();
   }, [dispatch]);
 
   const onMarkerPress = useCallback((marker: any) => {
