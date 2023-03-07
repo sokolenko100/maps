@@ -7,7 +7,7 @@ import Reactotron from 'reactotron-react-native';
 import reactotronConfig from '../../helpers/reactotronConfig';
 
 import {IS_TESTS} from '@constants/platforms';
-import {newTextSlice} from '@screens/HelloWorld/redux/reducer';
+import {newCountriesSlice} from '@screens/MapScreen/redux/reducer';
 
 const sagaMiddlewares: SagaMiddlewareOptions = {};
 
@@ -25,7 +25,7 @@ if (__DEV__ && !IS_TESTS) {
 const middleware = [sagaMiddleware];
 
 const store = configureStore({
-  reducer: newTextSlice.reducer,
+  reducer: newCountriesSlice.reducer,
   middleware,
 });
 

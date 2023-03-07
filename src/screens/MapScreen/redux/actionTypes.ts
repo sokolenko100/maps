@@ -1,0 +1,5 @@
+enum TYPES {
+  GET_COUNTRIES_DATA = 'GET_COUNTRIES_DATA',
+}
+
+export default TYPES;

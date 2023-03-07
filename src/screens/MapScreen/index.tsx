@@ -1,116 +1,87 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import MapView, {Marker, Cluster} from 'react-native-maps';
-import axios from 'axios';
+import React, {useState, useEffect, useCallback, FC} from 'react';
+import {View, Text} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import MapView, {Marker} from 'react-native-maps';
+import {Picker} from '@react-native-picker/picker';
 import {styles} from './styles';
+import {RootState} from '@redux/stores/store';
+import {getCountriesData} from './redux/actionCreators';
 
-const MapScreen = () => {
-  const [capitals, setCapitals] = useState([]);
-  const [region, setRegion] = useState({
-    latitude: 23.6345,
-    longitude: -102.5528,
-    latitudeDelta: 100,
-    longitudeDelta: 100,
-  });
+const InitialRegionCoordinate = {
+  latitude: 23.6345,
+  longitude: -102.5528,
+  latitudeDelta: 100,
+  longitudeDelta: 100,
+};
+const asiaCoordinate = {
+  latitude: 35.6762,
+  longitude: 139.6503,
+};
+const europeCoordinate = {
+  latitude: 51.5074,
+  longitude: -0.1278,
+};
+
+const MapScreen: FC = () => {
+  const dispatch = useDispatch();
+  const [selectedRegion, setSelectedRegion] = useState('Europe');
+  const countries = useSelector((state: RootState) => state.countries);
+  const [selectedCountries, setSelectedCountries] = useState([]);
+  const [regionCoordinates, setRegionCoordinates] = useState(
+    InitialRegionCoordinate,
+  );
 
   useEffect(() => {
-    fetchCapitals();
-  }, []);
-  // {
-  // "CountryName": "Russia",
-  // "CapitalName": "Moscow",
-  // "CapitalLatitude": "55.75",
-  // "CapitalLongitude": "37.600000",
-  // "CountryCode": "RU",
-  // "ContinentName": "Europe"
-  //   },
-  const fetchCapitals = async () => {
-    try {
-      const {data} = await axios.get(
-        'http://techslides.com/demos/country-capitals.json',
-      );
+    dispatch(getCountriesData());
+  }, [dispatch]);
 
-      // const result = data.split('\n').map((line: string) => line.split('|'));
-      // console.log('response data --->>>>', result);
-
-      const capitalsData = data.map(
-        ({CountryName, CapitalLatitude, CapitalLongitude, ContinentName}) => ({
-          name: CountryName,
-          region: ContinentName,
-          coordinates: {
-            latitude: +CapitalLatitude,
-            longitude: +CapitalLongitude,
-          },
-        }),
-      );
-      setCapitals(capitalsData);
-    } catch (error) {
-      console.log('error!!!!!!!!---->>>', error);
-    }
-  };
-
-  const onMarkerPress = (marker: never) => {
-    setRegion({
-      ...region,
+  const onMarkerPress = useCallback((marker: any) => {
+    setRegionCoordinates({
       latitude: marker?.coordinates.latitude,
       longitude: marker?.coordinates.longitude,
+      latitudeDelta: 5,
+      longitudeDelta: 5,
     });
-  };
+  }, []);
 
-  const applyFilter = (selectedRegion: string) => {
-    console.log('selectedRegion--->>', selectedRegion);
-    if (selectedRegion === 'Asia') {
-      let asiaCapitals = capitals.filter(capital => capital?.region === 'Asia');
-      setCapitals(asiaCapitals);
-      setRegion({
-        ...region,
-        latitude: 35.6762,
-        longitude: 139.6503,
-        latitudeDelta: 20,
-        longitudeDelta: 20,
+  const handleChange = useCallback(
+    (itemValue: string) => {
+      const coordinate =
+        itemValue === 'Europe' ? europeCoordinate : asiaCoordinate;
+      setRegionCoordinates({
+        ...coordinate,
+        latitudeDelta: 40,
+        longitudeDelta: 40,
       });
-    } else if (selectedRegion === 'Europe') {
-      let europeCapitals = capitals.filter(
-        capital => capital?.region === 'Europe',
+
+      let filtersCountries = countries.filter(
+        country => country?.ContinentName === itemValue,
       );
-      setCapitals(europeCapitals);
-      setRegion({
-        ...region,
-        latitude: 51.5074,
-        longitude: -0.1278,
-        latitudeDelta: 20,
-        longitudeDelta: 20,
-      });
-    }
-  };
+      setSelectedCountries(filtersCountries);
+      setSelectedRegion(itemValue);
+    },
+    [countries],
+  );
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Select a Region</Text>
       <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => applyFilter('Asia')}>
-          <Text style={[styles.label, {backgroundColor: '#E74C3C'}]}>Asia</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => applyFilter('Europe')}>
-          <Text style={[styles.label, {backgroundColor: '#2E86C1'}]}>
-            Europe
-          </Text>
-        </TouchableOpacity>
+        <View>
+          <Picker selectedValue={selectedRegion} onValueChange={handleChange}>
+            <Picker.Item label="Asia" value="Asia" />
+            <Picker.Item label="Europe" value="Europe" />
+          </Picker>
+        </View>
       </View>
-      <MapView style={styles.map} region={region}>
-        {/* <Cluster radius={50}>
-          {capitals.map(capital => (
-            <Marker
-              key={capital?.name}
-              coordinate={capital?.coordinates}
-              onPress={() => onMarkerPress(capital)}
-            />
-          ))}
-        </Cluster> */}
+      <MapView style={styles.map} region={regionCoordinates}>
+        {selectedCountries.map(country => (
+          <Marker
+            key={`marker-${country.name}`}
+            coordinate={country.coordinates}
+            onPress={() => onMarkerPress(country)}
+          />
+        ))}
       </MapView>
     </View>
   );
