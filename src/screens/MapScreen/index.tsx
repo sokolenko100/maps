@@ -37,25 +37,25 @@ const MapScreen: FC = () => {
   );
 
   const getCurrentPosition = useCallback(() => {
-      Geolocation.getCurrentPosition(
-        pos => {
-          const {longitude, latitude} = pos.coords;
-          setRegionCoordinates({
-            longitude, 
-            latitude,
-            latitudeDelta: 10,
-            longitudeDelta: 10,
-          });
-        },
-        error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
-        {enableHighAccuracy: true},
-      );
-    },[]);
+    Geolocation.getCurrentPosition(
+      pos => {
+        const {longitude, latitude} = pos.coords;
+        setRegionCoordinates({
+          longitude,
+          latitude,
+          latitudeDelta: 10,
+          longitudeDelta: 10,
+        });
+      },
+      error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
+      {enableHighAccuracy: true},
+    );
+  }, []);
 
   useEffect(() => {
     dispatch(getCountriesData());
     getCurrentPosition();
-  }, [dispatch]);
+  }, [dispatch, getCurrentPosition]);
 
   const onMarkerPress = useCallback((marker: any) => {
     setRegionCoordinates({

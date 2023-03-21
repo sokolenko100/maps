@@ -7,8 +7,8 @@ import AppStoreProvider from './redux/stores/provider';
 export default App = () => {
     return (
         <SafeAreaProvider>
-            <AppStoreProvider> // Handles global state management
-                <RootNavigator /> // Contains navigation logic and screens
+            <AppStoreProvider>
+                <RootNavigator /> 
             </AppStoreProvider>
         </SafeAreaProvider>
     );
